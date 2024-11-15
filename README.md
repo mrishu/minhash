@@ -18,7 +18,7 @@ https://huggingface.co/datasets/lucadiliello/english_wikipedia
 
 3. **Jaccard Similarity Computation**:
    - **Approximate Jaccard Similarity (MinHash-based)**: MinHash signatures are compared by counting the number of matching hash values between the query and document signatures. A higher number of matches indicates higher similarity.
-   - $\text{Jaccard Similarity (approx)} = \frac{\text{Number of matches}{\text{Number of hashes}}$.
+   - $$\text{Jaccard Similarity (approx.)} = \frac{\text{Number of matches}}{\text{Number of hashes}}.$$
 
 4. **Storage of MinHash Signatures**:
    - MinHash signatures are computed and stored as `.npy` files in the `minhashes` directory. If a signature already exists for a document, it is loaded to avoid redundant computation.
