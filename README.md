@@ -17,8 +17,8 @@ https://huggingface.co/datasets/lucadiliello/english_wikipedia
    - **`np.uint32` Wrapping**: Hash values are wrapped using `np.uint32`, meaning the result is constrained to a 32-bit unsigned integer range (`0 to 2^32 - 1`). This ensures that the hash values fit within 32 bits and can "wrap around" if they exceed this range, maintaining consistent as well as efficient computation.
 
 3. **Jaccard Similarity Computation**:
-   - **Approximate Jaccard Similarity (MinHash-based)**: MinHash signatures are compared by counting the number of matching hash values between the query and document signatures. A higher number of matches indicates higher similarity.
-   - $$\text{Jaccard Similarity (approx.)} = \frac{\text{Number of matches}}{\text{Number of hashes}}.$$
+   - **Approximate Jaccard Similarity (MinHash-based)**: MinHash signatures are compared by counting the number of matching hash values between the query and document MinHash signatures.
+   - $$\text{Jaccard Similarity (approx.)} = \frac{\text{Number of matches in MinHash signatures}}{\text{Number of hashes}}.$$
 
 4. **Storage of MinHash Signatures**:
    - MinHash signatures are computed and stored as `.npy` files in the `minhashes` directory. If a signature already exists for a document, it is loaded to avoid redundant computation.
