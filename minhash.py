@@ -11,10 +11,8 @@ from typing import Union
 
 nltk.download("punkt")
 
-# Filter docs with Jaccard similarity >= JACCARD_THRESHOLD (Change this according to need)
-JACCARD_THRESHOLD = 0.2
 
-# Can change this but delete precomputed minhashes `rm -rf minhashes`
+# Can change this but delete precomputed minhashes before `rm -rf minhashes`
 NGRAMS_LEN = 3
 NUM_HASHES = 100
 
@@ -22,7 +20,7 @@ NUM_HASHES = 100
 MAX_HASH = np.uint32(2**32 - 1)
 
 
-def fast_tokenize(text: str):
+def tokenize(text: str):
     text = re.sub(r"[^\w\s]", "", text.lower())
     tokens = text.split()
     return tokens
@@ -64,7 +62,7 @@ class Minhasher:
         return minhash_sig
 
     def minhash(self, text: str) -> Union[np.ndarray, None]:
-        tokens = fast_tokenize(text)
+        tokens = tokenize(text)
         ngrams_set = set(nltk.ngrams(tokens, self.ngrams_len))
         # ngrams_set will be empty if there are less than ngrams_len words
         if not ngrams_set:
@@ -83,58 +81,62 @@ def jaccard_similarity_from_minhash(
 
 
 def jaccard_similarity_exact(text1: str, text2: str, ngrams_len=3) -> float:
-    tokens1 = fast_tokenize(text1)
+    tokens1 = tokenize(text1)
     ngrams1 = set(nltk.ngrams(tokens1, ngrams_len))
-    tokens2 = fast_tokenize(text2)
+    tokens2 = tokenize(text2)
     ngrams2 = set(nltk.ngrams(tokens2, ngrams_len))
     return len(ngrams1.intersection(ngrams2)) / len(ngrams1.union(ngrams2))
 
 
-ds = load_dataset("lucadiliello/english_wikipedia", split="train")
+if __name__ == "__main__":
+    # Filter docs with Jaccard similarity >= JACCARD_THRESHOLD (Change this according to need)
+    JACCARD_THRESHOLD = 0.2
 
-minhasher = Minhasher()
+    ds = load_dataset("lucadiliello/english_wikipedia", split="train")
 
-query = ds[0]["maintext"]  # using first document as query
-# query = input("Enter query: ")
-minhash_q = minhasher.minhash(query)
-if minhash_q is None:
-    raise ValueError("Query must contain at least one n-gram!")
+    minhasher = Minhasher()
 
-print("Minhash for query generated!")
+    query = ds[0]["maintext"]  # using first document as query
+    # query = input("Enter query: ")
+    minhash_q = minhasher.minhash(query)
+    if minhash_q is None:
+        raise ValueError("Query must contain at least one n-gram!")
 
-directory = "minhashes"
-if not os.path.exists(directory):
-    os.makedirs(directory)
-    print(f"Directory '{directory}' created. Minhashes will be saved here.")
-else:
-    print(f"Directory '{directory}' already exists. Minhashes will be saved here.")
+    print("Minhash for query generated!")
 
-relevant_docs_count = 0
-
-for doc in tqdm(ds):
-    text = doc["maintext"]
-    filename = doc["filename"]  # filenames are numeric
-    file_path = os.path.join(directory, filename + ".npy")
-
-    # skip empty text
-    if not text or not text.strip():
-        continue
-
-    # load or compute minhash
-    if os.path.exists(file_path):
-        minhash_doc = np.load(file_path)
+    directory = "minhashes"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        print(f"Directory '{directory}' created. Minhashes will be saved here.")
     else:
-        minhash_doc = minhasher.minhash(text)
-        if minhash_doc is not None:
-            np.save(file_path, minhash_doc)
-        else:
+        print(f"Directory '{directory}' already exists. Minhashes will be saved here.")
+
+    relevant_docs_count = 0
+
+    for doc in tqdm(ds):
+        text = doc["maintext"]
+        filename = doc["filename"]  # filenames are numeric
+        file_path = os.path.join(directory, filename + ".npy")
+
+        # skip empty text
+        if not text or not text.strip():
             continue
 
-    # compute jaccard similarity
-    js_minhash = jaccard_similarity_from_minhash(minhash_q, minhash_doc)
-    if js_minhash >= JACCARD_THRESHOLD:
-        relevant_docs_count += 1
-        print(f"Relevant Document Found: {doc['url']}")
-        print(f"Jaccard Similarity (MinHash): {js_minhash:.2f}")
+        # load or compute minhash
+        if os.path.exists(file_path):
+            minhash_doc = np.load(file_path)
+        else:
+            minhash_doc = minhasher.minhash(text)
+            if minhash_doc is not None:
+                np.save(file_path, minhash_doc)
+            else:
+                continue
 
-print(f"\nTotal relevant documents found: {relevant_docs_count}")
+        # compute jaccard similarity
+        js_minhash = jaccard_similarity_from_minhash(minhash_q, minhash_doc)
+        if js_minhash >= JACCARD_THRESHOLD:
+            relevant_docs_count += 1
+            print(f"Relevant Document Found: {doc['url']}")
+            print(f"Jaccard Similarity (MinHash): {js_minhash:.2f}")
+
+    print(f"\nTotal relevant documents found: {relevant_docs_count}")
