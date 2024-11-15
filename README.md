@@ -8,7 +8,7 @@ https://huggingface.co/datasets/lucadiliello/english_wikipedia
 # Key Implementation Points
 
 1. **Text Preprocessing and Tokenization**:
-   - Text is normalized: converted to lowercase, and punctuation is removed.
+   - **Text is normalized**: Converted to lowercase, and punctuation is removed.
    - `nltk` is used to generated n-grams (default: 3-grams) from the token sequence, which is then converted to a set.
 
 2. **Minhashing Process**:
