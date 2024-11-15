@@ -13,7 +13,7 @@ https://huggingface.co/datasets/lucadiliello/english_wikipedia
 
 2. **Minhashing Process**:
    - **Hashing with xxhash**: The script uses `xxhash.xxh32` to compute 32-bit hash values for n-grams.
-   - **Random Linear Transformations**: For MinHashing, random linear transformations (`h_i(x) = a_i * x + b_i`) are generated. Since random linear transformations are `min-wise independent`, the coefficients `a_i` and `b_i` are random integers.
+   - **Random Linear Transformations as Hashes**: For MinHashing, `NUM_HASHES` number of random linear transformations (`h_i(x) = a_i * x + b_i`) are generated. Since random linear transformations are *min-wise independent*, the coefficients `a_i` and `b_i` are random integers.
    - **`np.uint32` Wrapping**: Hash values are wrapped using `np.uint32`, meaning the result is constrained to a 32-bit unsigned integer range (`0 to 2^32 - 1`). This ensures that the hash values fit within 32 bits and can "wrap around" if they exceed this range, maintaining consistent as well as efficient computation.
 
 3. **Jaccard Similarity Computation**:
