@@ -6,7 +6,6 @@ The English Wikipedia Dataset:
 https://huggingface.co/datasets/lucadiliello/english_wikipedia
 
 # Key Implementation Points
-# Minhashing and Jaccard Similarity Computation
 
 1. **Text Preprocessing and Tokenization**:
    - Text is tokenized using `nltk`, converted to lowercase, and punctuation is removed. N-grams (default: 3-grams) are generated from the tokens to represent the text.
