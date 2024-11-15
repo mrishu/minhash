@@ -1,11 +1,11 @@
 # MinHash
 An efficient implementation of MinHash algorithm.
 
-# Dataset
+## Dataset
 The English Wikipedia Dataset:
 https://huggingface.co/datasets/lucadiliello/english_wikipedia
 
-# Dependencies
+## Dependencies
 Main dependencies for the implementation:
 ```
 pip install numpy nltk xxhash
@@ -16,7 +16,7 @@ To run on the dataset:
 pip install datasets tqdm
 ```
 
-# Key Implementation Points
+## Key Implementation Points
 
 1. **Text Preprocessing and Tokenization**:
    - **Text is normalized**: Converted to lowercase, and punctuation is removed.
