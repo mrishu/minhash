@@ -6,8 +6,14 @@ The English Wikipedia Dataset:
 https://huggingface.co/datasets/lucadiliello/english_wikipedia
 
 # Dependencies
+Main dependencies for the implementation:
 ```
-pip install datasets numpy nltk xxhash tqdm
+pip install numpy nltk xxhash
+```
+
+To run on the dataset:
+```
+pip install datasets tqdm
 ```
 
 # Key Implementation Points
