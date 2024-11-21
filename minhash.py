@@ -80,12 +80,13 @@ def jaccard_similarity_from_minhash(
     return jaccard_similarity
 
 
-def jaccard_similarity_exact(text1: str, text2: str, ngrams_len=3) -> float:
-    tokens1 = tokenize(text1)
-    ngrams1 = set(nltk.ngrams(tokens1, ngrams_len))
-    tokens2 = tokenize(text2)
-    ngrams2 = set(nltk.ngrams(tokens2, ngrams_len))
-    return len(ngrams1.intersection(ngrams2)) / len(ngrams1.union(ngrams2))
+#
+# def jaccard_similarity_exact(text1: str, text2: str, ngrams_len=3) -> float:
+#     tokens1 = tokenize(text1)
+#     ngrams1 = set(nltk.ngrams(tokens1, ngrams_len))
+#     tokens2 = tokenize(text2)
+#     ngrams2 = set(nltk.ngrams(tokens2, ngrams_len))
+#     return len(ngrams1.intersection(ngrams2)) / len(ngrams1.union(ngrams2))
 
 
 if __name__ == "__main__":
@@ -112,8 +113,9 @@ if __name__ == "__main__":
         print(f"Directory '{directory}' already exists. Minhashes will be saved here.")
 
     relevant_docs_count = 0
+    relevant_docs_title_url = []
 
-    for doc in tqdm(ds):
+    for doc in tqdm(ds, leave=True):
         text = doc["maintext"]
         filename = doc["filename"]  # filenames are numeric
         file_path = os.path.join(directory, filename + ".npy")
@@ -122,21 +124,20 @@ if __name__ == "__main__":
         if not text or not text.strip():
             continue
 
-        # load or compute minhash
-        if os.path.exists(file_path):
-            minhash_doc = np.load(file_path)
-        else:
+        # compute or load minhash
+        if not os.path.exists(file_path):
             minhash_doc = minhasher.minhash(text)
             if minhash_doc is not None:
                 np.save(file_path, minhash_doc)
             else:
                 continue
+        else:
+            minhash_doc = np.load(file_path)
 
-        # compute jaccard similarity
         js_minhash = jaccard_similarity_from_minhash(minhash_q, minhash_doc)
         if js_minhash >= JACCARD_THRESHOLD:
             relevant_docs_count += 1
-            print(f"Relevant Document Found: {doc['url']}")
-            print(f"Jaccard Similarity (MinHash): {js_minhash:.2f}")
+            tqdm.write(f"\nRelevant Document Found: {doc['url']}")
+            tqdm.write(f"Jaccard Similarity (MinHash): {js_minhash:.2f}\n")
 
-    print(f"\nTotal relevant documents found: {relevant_docs_count}")
+        print(f"\nTotal relevant documents found: {relevant_docs_count}")
