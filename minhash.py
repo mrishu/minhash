@@ -11,11 +11,6 @@ from typing import Union
 
 nltk.download("punkt")
 
-
-# Can change this but delete precomputed minhashes before. i.e. `rm -rf computed_minhashes`
-NGRAMS_LEN = 3
-NUM_HASHES = 500
-
 # Dont change this as 32 bit hashes are being generated using xxhash.xxh32
 MAX_HASH = np.uint32(2**32 - 1)
 
@@ -27,7 +22,7 @@ def tokenize(text: str):
 
 
 class Minhasher:
-    def __init__(self, num_hashes=NUM_HASHES, ngrams_len=NGRAMS_LEN):
+    def __init__(self, num_hashes=500, ngrams_len=3):
         self.num_hashes = num_hashes
         self.ngrams_len = ngrams_len
         self.a, self.b = self._generate_lineartransform_hash_funcs()
@@ -80,7 +75,7 @@ def jaccard_similarity_from_minhash(
     return jaccard_similarity
 
 
-def jaccard_similarity_exact(text1: str, text2: str, ngrams_len=NGRAMS_LEN) -> float:
+def jaccard_similarity_exact(text1: str, text2: str, ngrams_len=3) -> float:
     tokens1 = tokenize(text1)
     ngrams1 = set(nltk.ngrams(tokens1, ngrams_len))
     tokens2 = tokenize(text2)
@@ -89,12 +84,16 @@ def jaccard_similarity_exact(text1: str, text2: str, ngrams_len=NGRAMS_LEN) -> f
 
 
 if __name__ == "__main__":
+    # Can change these but delete precomputed minhashes before. i.e. `rm -rf computed_minhashes`
+    NGRAMS_LEN = 3
+    NUM_HASHES = 500
+
     # Filter docs with Jaccard similarity >= JACCARD_THRESHOLD (Change this according to need)
     JACCARD_THRESHOLD = 0.02
 
     ds = load_dataset("lucadiliello/english_wikipedia", split="train")
 
-    minhasher = Minhasher()
+    minhasher = Minhasher(num_hashes=NUM_HASHES, ngrams_len=NGRAMS_LEN)
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -138,14 +137,14 @@ if __name__ == "__main__":
 
         js_minhash = jaccard_similarity_from_minhash(minhash_q, minhash_doc)
 
-        # js_exact = jaccard_similarity_exact(query, text)
+        # js_exact = jaccard_similarity_exact(query, text, ngrams_len=NGRAMS_LEN)
         # tqdm.write(f"{doc['filename']}, {js_minhash:.2f}, {js_exact:.2f}")
 
         if js_minhash >= JACCARD_THRESHOLD:
             relevant_docs_count += 1
             tqdm.write(f"\nRelevant Document Found: {doc['url']}")
             tqdm.write(f"Jaccard Similarity (MinHash): {js_minhash:.2f}")
-            # js_exact = jaccard_similarity_exact(query, text)
+            # js_exact = jaccard_similarity_exact(query, text, ngrams_len=NGRAMS_LEN)
             # tqdm.write(f"Jaccard Similarity (Exact): {js_exact:.2f}")
             tqdm.write("")
 
