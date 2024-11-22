@@ -96,28 +96,31 @@ if __name__ == "__main__":
 
     minhasher = Minhasher()
 
-    query = open("query.txt", "r").read()
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+    query_file = os.path.join(base_dir, "query.txt")
+    query = open(query_file, "r").read()
 
     minhash_q = minhasher.minhash(query)
     if minhash_q is None:
-        raise ValueError("Query must contain at least one n-gram!")
+        raise ValueError(f"Query must contain at least {NGRAMS_LEN} words!")
 
     print("\nMinhash for query generated!")
 
-    directory = "computed_minhashes"
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-        print(f"Directory '{directory}' created. Minhashes will be saved here.")
+    minhash_directory = os.path.join(base_dir, "computed_minhashes")
+    if not os.path.exists(minhash_directory):
+        os.makedirs(minhash_directory)
+        print(f"Directory '{minhash_directory}' created. Minhashes will be saved here.")
     else:
-        print(f"Directory '{directory}' already exists. Minhashes will be saved here.")
+        print(
+            f"Directory '{minhash_directory}' already exists. Minhashes will be saved here."
+        )
 
     relevant_docs_count = 0
-    relevant_docs_title_url = []
-
     for doc in tqdm(ds):
         text = doc["maintext"]
         filename = doc["filename"]  # filenames are numeric
-        file_path = os.path.join(directory, filename + ".npy")
+        file_path = os.path.join(minhash_directory, filename + ".npy")
 
         # skip empty text
         if not text or not text.strip():
@@ -138,7 +141,7 @@ if __name__ == "__main__":
         # js_exact = jaccard_similarity_exact(query, text)
         # tqdm.write(f"{doc['filename']}, {js_minhash:.2f}, {js_exact:.2f}")
 
-        if js_minhash > JACCARD_THRESHOLD:
+        if js_minhash >= JACCARD_THRESHOLD:
             relevant_docs_count += 1
             tqdm.write(f"\nRelevant Document Found: {doc['url']}")
             tqdm.write(f"Jaccard Similarity (MinHash): {js_minhash:.2f}")
@@ -146,4 +149,4 @@ if __name__ == "__main__":
             # tqdm.write(f"Jaccard Similarity (Exact): {js_exact:.2f}")
             tqdm.write("")
 
-    print(f"\nTotal relevant documents found: {relevant_docs_count}")
+    print(f"\nTotal relevant documents found: {relevant_docs_count}.")
