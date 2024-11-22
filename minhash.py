@@ -22,7 +22,7 @@ def tokenize(text: str):
 
 
 class Minhasher:
-    def __init__(self, num_hashes=500, ngrams_len=3):
+    def __init__(self, num_hashes: int = 500, ngrams_len: int = 3):
         self.num_hashes = num_hashes
         self.ngrams_len = ngrams_len
         self.a, self.b = self._generate_lineartransform_hash_funcs()
@@ -75,7 +75,7 @@ def jaccard_similarity_from_minhash(
     return jaccard_similarity
 
 
-def jaccard_similarity_exact(text1: str, text2: str, ngrams_len=3) -> float:
+def jaccard_similarity_exact(text1: str, text2: str, ngrams_len: int = 3) -> float:
     tokens1 = tokenize(text1)
     ngrams1 = set(nltk.ngrams(tokens1, ngrams_len))
     tokens2 = tokenize(text2)
