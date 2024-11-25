@@ -20,7 +20,7 @@ pip install datasets tqdm
 
 1. **Text Preprocessing and Tokenization**:
    - **Text is normalized**: Converted to lowercase, and punctuation is removed.
-   - `nltk` is used to generated n-grams (default: 3-grams) from the token sequence, which is then converted to a set.
+   - `nltk` is used to generate n-grams (default: 3-grams) from the token sequence, which is then converted to a set.
 
 2. **Minhashing Process**:
    - **Hashing with xxhash**: The script uses `xxhash.xxh32` to compute 32-bit hash values for n-grams.
@@ -32,7 +32,7 @@ pip install datasets tqdm
    - $$\text{Jaccard Similarity (approx.)} = \frac{\text{Number of matches in MinHash signatures}}{\text{Number of hashes}}.$$
 
 4. **Storage of MinHash Signatures**:
-   - MinHash signatures are computed and stored as `.npy` files in the `minhashes` directory. If a signature already exists for a document, it is loaded to avoid redundant computation.
+   - MinHash signatures are computed and stored as `.npy` files in the `computed_minhashes` directory. If a signature already exists for a document, it is loaded to avoid redundant computation.
 
 5. **Document Relevance**:
    - For a given query document, its MinHash signature is compared with the signatures of other documents. Documents with a MinHash-based Jaccard similarity above the `JACCARD_THRESHOLD` are considered relevant.
